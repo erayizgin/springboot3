@@ -1,43 +1,38 @@
 package com.pluralsight.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import javax.validation.constraints.NotNull;
+
 @Entity
-@Table(name = "products")
+@Table(name="product")
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String name;
-    private String imageUrl;
-    private double price;
-    private String description;
 
+    private @NotNull String name;
+    private @NotNull String imageURL;
+    private @NotNull double price;
+    private @NotNull String description;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="category_id", nullable = false)
-    private Category category;
+    Category category;
 
-    public Product() {
-
-    }
-
-    private Product(String name, String imageUrl, double price, String description, Category category) {
+    public Product(String name, String imageURL, double price, String description, Category category) {
         super();
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.imageURL = imageURL;
         this.price = price;
         this.description = description;
         this.category = category;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public Product(){}
 
     public String getName() {
         return name;
@@ -47,12 +42,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageURL() {
+        return imageURL;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
 
     public double getPrice() {
@@ -71,11 +66,30 @@ public class Product {
         this.description = description;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Category getCategory() {
         return category;
     }
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", imageURL='" + imageURL + '\'' +
+                ", price=" + price +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

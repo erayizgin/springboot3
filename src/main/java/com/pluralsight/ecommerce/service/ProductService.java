@@ -1,6 +1,6 @@
 package com.pluralsight.ecommerce.service;
 
-import com.pluralsight.ecommerce.dto.ProductDto;
+import com.pluralsight.ecommerce.dto.product.ProductDto;
 import com.pluralsight.ecommerce.model.Category;
 import com.pluralsight.ecommerce.model.Product;
 import com.pluralsight.ecommerce.repository.ProductRepository;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -16,37 +17,49 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public void addProduct(ProductDto productDto, Category category) {
+    public static Product getProductFromDto(ProductDto productDto, Category category) {
         Product product = new Product();
         product.setCategory(category);
         product.setDescription(productDto.getDescription());
-        product.setImageUrl(productDto.getImageUrl());
+        product.setImageURL(productDto.getImageURL());
         product.setPrice(productDto.getPrice());
         product.setName(productDto.getName());
+        return product;
+    }
 
+
+    public void addProduct(ProductDto productDto, Category category) {
+        Product product = getProductFromDto(productDto, category);
         productRepository.save(product);
     }
 
-    public List<ProductDto> listProducts(){
+    // list of all the products
+    public List<ProductDto> listProducts() {
+        // first fetch all the products
         List<Product> products = productRepository.findAll();
         List<ProductDto> productDtos = new ArrayList<>();
 
         for(Product product : products) {
+            // for each product change it to DTO
             productDtos.add(new ProductDto(product));
         }
-
         return productDtos;
     }
 
+    // update a product
     public void updateProduct(Integer productID, ProductDto productDto, Category category) {
-        Product product = new Product();
-        product.setCategory(category);
-        product.setDescription(productDto.getDescription());
-        product.setImageUrl(productDto.getImageUrl());
-        product.setPrice(productDto.getPrice());
-        product.setName(productDto.getName());
-
+        Product product = getProductFromDto(productDto, category);
+        // set the id for updating
         product.setId(productID);
+        // update
         productRepository.save(product);
     }
+
+    public Product getProductById(Integer productId) throws Exception {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isEmpty())
+            throw new Exception("Product id is invalid");
+        return optionalProduct.get();
+    }
+
 }

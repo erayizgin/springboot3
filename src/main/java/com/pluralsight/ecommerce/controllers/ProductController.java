@@ -1,14 +1,21 @@
 package com.pluralsight.ecommerce.controllers;
 
-import com.pluralsight.ecommerce.dto.ProductDto;
+import com.pluralsight.ecommerce.common.ApiResponse;
+import com.pluralsight.ecommerce.dto.product.ProductDto;
 import com.pluralsight.ecommerce.model.Category;
 import com.pluralsight.ecommerce.service.CategoryService;
 import com.pluralsight.ecommerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,41 +24,40 @@ import java.util.Optional;
 public class ProductController {
 
     @Autowired
-    private ProductService productService;
-
+    ProductService productService;
     @Autowired
-    private CategoryService categoryService;
+    CategoryService categoryService;
+
 
     @PostMapping("/")
-    public ResponseEntity<Void> createProduct(@RequestBody ProductDto productDto) {
+    public ResponseEntity<ApiResponse> addProduct(@RequestBody ProductDto productDto) {
         Optional<Category> optionalCategory = categoryService.readCategory(productDto.getCategoryId());
-        if (optionalCategory.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!optionalCategory.isPresent()) {
+            return new ResponseEntity<>(new ApiResponse(false, "category is invalid"), HttpStatus.CONFLICT);
         }
-
         Category category = optionalCategory.get();
         productService.addProduct(productDto, category);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(new ApiResponse(true, "Product has been added"), HttpStatus.CREATED);
     }
 
+    // list all the products
     @GetMapping("/")
-    public ResponseEntity<List<ProductDto>> getProducts(){
+    public ResponseEntity<List<ProductDto>> getProducts() {
         List<ProductDto> productDtos = productService.listProducts();
         return new ResponseEntity<>(productDtos, HttpStatus.OK);
     }
 
+    // update a product
     @PostMapping("/{productID}")
-    public ResponseEntity<Void> updateProduct(@PathVariable("productID") Integer productID,
-                                              @RequestBody ProductDto productDto) {
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable("productID") Integer productID,
+                                                     @RequestBody @Valid ProductDto productDto) {
         Optional<Category> optionalCategory = categoryService.readCategory(productDto.getCategoryId());
-        if (optionalCategory.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!optionalCategory.isPresent()) {
+            return new ResponseEntity<ApiResponse>(new ApiResponse(false, "category is invalid"), HttpStatus.CONFLICT);
         }
-
         Category category = optionalCategory.get();
         productService.updateProduct(productID, productDto, category);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(true, "Product has been updated"), HttpStatus.OK);
     }
-
 }
+

@@ -1,23 +1,36 @@
 package com.pluralsight.ecommerce.model;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(name="categories")
-public class Category
-{
+@Table(name = "categories")
+public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="category_name")
+    @Column(name = "category_name")
     private @NotBlank String categoryName;
+
     private @NotBlank String description;
+
     private @NotBlank String imageUrl;
 
-    public Category () {}
+
+    public Category() {
+    }
+
+    public Category(@NotBlank String categoryName, @NotBlank String description) {
+        this.categoryName = categoryName;
+        this.description = description;
+    }
 
     public Category(@NotBlank String categoryName, @NotBlank String description, @NotBlank String imageUrl) {
         this.categoryName = categoryName;
@@ -25,16 +38,8 @@ public class Category
         this.imageUrl = imageUrl;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public String getCategoryName() {
-        return categoryName;
+        return this.categoryName;
     }
 
     public void setCategoryName(String categoryName) {
@@ -55,5 +60,18 @@ public class Category
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Category {category id=" + id + ", category name='" + categoryName + "', description='" + description + "'}";
     }
 }
